@@ -1,3 +1,9 @@
+# Config files
+*-config.json
+
+# Data
+data/
+
 # Logs
 logs
 *.log
