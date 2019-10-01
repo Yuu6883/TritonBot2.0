@@ -5,6 +5,7 @@ const Tracker = require("./modules/EnrollmentTracker");
 const Logger = require("./Logger");
 const Config = require("../config");
 const Welcomer = require("./modules/Welcomer");
+const VimTester = require("./modules/VimTester");
 
 module.exports = class Bot extends Client {
 
@@ -18,6 +19,7 @@ module.exports = class Bot extends Client {
         this.logger = new Logger();
         this.registry = new CommandRegistry(this);
         this.welcomer = new Welcomer(this);
+        this.vim = new VimTester(this);
 
         if (this.config.Bot.Token)
             this.login(this.config.Bot.Token);
@@ -30,6 +32,9 @@ module.exports = class Bot extends Client {
         this.tracker = new Tracker(this);
 
         this.on("message", async message => {
+
+            if (message.author.bot) return;
+            if (await this.vim.check(message)) return;
 
             for (let command of this.commands) {
 

@@ -36,8 +36,10 @@ module.exports = async () => {
         delta = before - enrolled;
     }
 
-    data[Date.now()] = enrolled;
-    saveData();
+    if (delta || !recent) {
+        data[Date.now()] = enrolled;
+        saveData(); 
+    }
 
     return {
         timestamp,

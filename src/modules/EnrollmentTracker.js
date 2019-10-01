@@ -41,8 +41,8 @@ module.exports = class EnrollmentTracker {
 
         } else if (result.delta) {
 
-            embed.setDescription(`**${result.delta}** students just dropped the class\n` + 
-                                `**${result.enrolled}** enrolled students`);
+            embed.setDescription(`**${Math.abs(result.delta)}** students just ${result.delta > 0 ? "dropped" : "enrolled"} the class\n` + 
+                                 `**${result.enrolled}** enrolled students`);
             await this.channel.send(embed);
         }
 

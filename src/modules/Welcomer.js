@@ -20,13 +20,16 @@ module.exports = class Welcomer {
             channel.send(embed);
         }
 
-        let adminRole = member.guild.roles.get("627016688214212618");
+        let adminRole  = member.guild.roles.get("627016688214212618");
         let memberRole = member.guild.roles.get("627019550931550218");
 
         if (member.user.id == this.bot.config.Bot.Owner && adminRole) {
+
             await member.addRole(adminRole);
         } else if (memberRole) {
+            
             await member.addRole(memberRole);
+            this.bot.logger.info(`${member.user.username}#${member.user.discriminator} just joined CSE12`);
         }
     }
 }
