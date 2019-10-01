@@ -264,15 +264,75 @@ const VimCommands = {
         ]
     },
     level3: {
-        
+        "Paste after cursor": [
+            "p"
+        ],
+        "Paste before cursor": [
+            "P"
+        ],
+        "Replace character under cursor": [
+            "r"
+        ],
+        "Change word": [
+            "cw"
+        ],
+        "Change to end of line": [
+            "c$",
+            "C"
+        ],
+        "Change two words": [
+            "c2w"
+        ]
     },
     level4: {
-
+        "Go to line 50": [
+            "50G",
+            ":50"
+        ],
+        "Go to last line in file": [
+            "G"
+        ],
+        "Go to first line in file": [
+            "gg"
+        ],
+        "Search for \"waldo\"": [
+            "/waldo"
+        ],
+        "Go to next search result": [
+            "n"
+        ],
+        "Go to previous search result": [
+            "N"
+        ],
+        "Search backwards for \"carmen\"": [
+            "?carmen"
+        ],
+        "Jump to previous location (jump back)": [
+            "ctrl+o"
+        ],
+        "Jump to next location (jump forward)": [
+            "ctrl+i"
+        ],
+        "Go to matching parentheses or brackets": [
+            "%"
+        ],
+        "Replace bad with good in current line": [
+            ":%s/bad/good"
+        ],
+        "Replace hi with bye in entire file": [
+            ":%s/hi/bye/g"
+        ],
+        "Replace x with y in entire file, prompt for changes": [
+            ":%s/x/y/gc"
+        ]
     },
     level5: {
 
     },
     level6: {
 
+    },
+    level7: {
+        
     }
 }
