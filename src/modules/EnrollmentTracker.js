@@ -20,6 +20,7 @@ module.exports = class EnrollmentTracker {
     }
 
     startScrapping() {
+        if (!this.channel) return;
         this.scrap();
     }
 
