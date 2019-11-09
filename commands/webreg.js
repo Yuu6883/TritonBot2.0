@@ -73,10 +73,10 @@ module.exports = {
             ctx.fillStyle = "white";
 
             ctx.textAlign = "center";
-            ctx.font = "30px Sans";
+            ctx.font = "30px Arial";
             ctx.fillText(`${course.SUBJ_CODE.trim()} ${course.CRSE_CODE.trim()} ${course.CRSE_TITLE}`, 400, 40, 800);
             
-            ctx.font = "20px Sans";
+            ctx.font = "20px Arial";
             ctx.textAlign = "left";
             ctx.fillText("Section", 4, 82);
             ctx.fillText("Type", 90, 82);
