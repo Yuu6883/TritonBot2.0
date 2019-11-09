@@ -34,12 +34,13 @@ module.exports = {
     run: async function(message) {
         let args = message.content.replace("webreg", "").trim().split(" ");
 
-        if ((args.length > 2) || (!args[0])) {
+        if (!args[0]) {
             message.channel.send("Type **Webreg [wi20] {Course code}** to check out a course");
             return;
         }
 
         args[0] = args[0].toLowerCase();
+        args[1] = args.slice(1).join("");
 
         if (!courses[args[0]]) {
             args[1] = args[0];
@@ -76,7 +77,7 @@ module.exports = {
             ctx.font = "30px DejaVu Sans";
             ctx.fillText(`${course.SUBJ_CODE.trim()} ${course.CRSE_CODE.trim()} ${course.CRSE_TITLE}`, 400, 40, 800);
             
-            ctx.font = "20px DejaVu Sans";
+            ctx.font = "18px DejaVu Sans";
             ctx.textAlign = "left";
             ctx.fillText("Section", 4, 82);
             ctx.fillText("Type", 90, 82);
