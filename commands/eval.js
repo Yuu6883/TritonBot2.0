@@ -1,5 +1,6 @@
 const { inspect } = require("util");
 const { RichEmbed } = require("discord.js");
+const SILENT_FLAG = /(-s)|(--slient)/i;
 
 /** @type {BaseCommand} */
 module.exports = {
@@ -9,6 +10,8 @@ module.exports = {
     run: async function(message) {
 
         let code = message.content.slice(5);
+        let silent = SILENT_FLAG.exec(message.content);
+        if (silent) message.content = message.content.replace(SILENT_FLAG, "");
         const start = process.hrtime.bigint();
         let channel = message.channel;
         let guild = message.guild;
