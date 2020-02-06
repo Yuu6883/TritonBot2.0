@@ -1,5 +1,6 @@
 const { inspect } = require("util");
 const { RichEmbed } = require("discord.js");
+const GOL = require("../src/modules/GameOfLife");
 const SILENT_FLAG = /(-s)|(--slient)/i;
 
 /** @type {BaseCommand} */
