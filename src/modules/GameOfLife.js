@@ -1,9 +1,8 @@
 const ffmpegPath = process.platform == "win32" ? require("@ffmpeg-installer/ffmpeg").path : "ffmpeg";
 const { spawn } = require("child_process");
 const Path = require("path");
-const fetch = require("node-fetch");
 const UID = require("uid-safe");
-const { Canvas, loadImage } = require("canvas");
+const { Canvas } = require("canvas");
 
 const OUTPUT_PATH = Path.resolve(__dirname, "..", "..", "data");
 
@@ -11,17 +10,17 @@ module.exports = class GOL {
 
     static BACKGROUND = "#000000";
     static FOREGROUND = "#ffffff";
-    static MAX_FRAME = 30 * 10;
-    static FPS = 10;
+    static STEPS = 200;
+    static VID_LEN = 20;
     static WAIT = 1;
     static DEBUG = false;
+    static THRESH = 128;
 
     /**
      * @param {number} rows 
      * @param {number} cols 
-     * @param {number} steps
      */
-    constructor(rows, cols, steps = 200) {
+    constructor(rows, cols) {
         if (rows < 4 || cols < 4) throw new Error(`Invalid Arguments: [${rows}, ${cols}, ${steps}]`);
         if (rows > 1000 || cols > 1000) throw new Error("Dimension Too Big (>1000)");
         if (rows > 100 || cols > 100) {
@@ -32,13 +31,33 @@ module.exports = class GOL {
         this.ctx = this.canvas.getContext("2d");
         this.rows = rows;
         this.cols = cols;
-        this.steps = steps;
+        this.steps = GOL.STEPS;
+        this.bg = GOL.BACKGROUND;
+        this.fg = GOL.FOREGROUND;
+        this.fps = Math.round(this.steps / GOL.VID_LEN);
         this.bufferA = new Uint8Array(this.rows * this.cols);
         this.bufferB = new Uint8Array(this.rows * this.cols);
         this.currentBuffer = this.bufferA;
         this.nextBuffer = this.bufferB;
         /** @type {number[][]} */
         this.changedIndices = [];
+    }
+
+    /** @param {number} value */
+    set videoLength(value) {
+        this.fps = Math.round(this.steps / ~~value) || 10;
+    }
+
+    /** @param {string} value */
+    set foreground(value) {
+        if (/^#[0-9a-f]{6}$/.test(value))
+            this.fg = value;
+    }
+
+    /** @param {string} value */
+    set background(value) {
+        if (/^#[0-9a-f]{6}$/.test(value))
+            this.bg = value;
     }
 
     /**
@@ -79,9 +98,9 @@ module.exports = class GOL {
     render(force = false) {
         // Force fill all grids
         if (force) {
-            this.ctx.fillStyle = GOL.BACKGROUND;
+            this.ctx.fillStyle = this.bg;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.fillStyle = GOL.FOREGROUND;
+            this.ctx.fillStyle = this.fg;
 
             for (let row = 1; row < this.rows - 1; row++) {
                 for (let col = 1; col < this.cols - 1; col++) {
@@ -94,7 +113,7 @@ module.exports = class GOL {
         // Only render changed cells
         } else {
             for (let [row, col] of this.changedIndices) {
-                this.ctx.fillStyle = this.isAlive(row, col) ? GOL.FOREGROUND : GOL.BACKGROUND;
+                this.ctx.fillStyle = this.isAlive(row, col) ? this.fg : this.bg;
                 this.ctx.fillRect(col * this.unit, row * this.unit, this.unit, this.unit);
             }
             this.changedIndices = [];
@@ -142,7 +161,7 @@ module.exports = class GOL {
             let args = [
                 '-y',
                 '-f', 'image2pipe',
-                '-framerate', GOL.FPS.toString(), // frames per second
+                '-framerate', this.fps.toString(), // frames per second
                 '-i', '-',
                 '-profile:v', 'baseline',
                 '-crf', '10',
@@ -154,7 +173,8 @@ module.exports = class GOL {
 
             if (GOL.DEBUG) ffmpeg.stderr.pipe(process.stdout);
 
-            for (let i = 0; i < GOL.WAIT * GOL.FPS; i++) {
+            this.render(true); // Render first frame
+            for (let i = 0; i < GOL.WAIT * this.fps.FPS; i++) {
                 ffmpeg.stdin.write(this.getCurrentFrame());
             }
 
@@ -178,7 +198,34 @@ module.exports = class GOL {
             let [row, col] = token.split(" ").map(Number);
             gol.setAlive(row, col, true, true);
         }
-        gol.render(true);
+        return gol;
+    }
+
+    /** @param {import("canvas").Image} image */
+    static fromImage(image, invert = false) {
+        if (image.height < 4 || image.width < 4) throw new Error("Image Too Small");
+
+        let scaleDown = 1;
+        if (image.height > 1000 || image.width > 1000) {
+            scaleDown = Math.ceil(Math.max(image.height, image.width) / 1000);
+        }
+        let width = ~~(image.width / scaleDown);
+        let height = ~~(image.height / scaleDown);
+
+        let tempCanvas = new Canvas(width, height);
+        let ctx = tempCanvas.getContext("2d");
+        ctx.drawImage(image, 0, 0, width, height);
+        let rgbaArray = ctx.getImageData(0, 0, width, height).data;
+
+        let gol = new GOL(height, width);
+        for (let row = 1; row < height - 1; row++) {
+            for (let col = 1; col < width - 1; col++) {
+                let [r, g, b] = rgbaArray.slice((row * width + col) * 4, (row * width + col + 1) * 4);
+
+                if (invert ? (r + g + b) / 3 < GOL.THRESH : (r + g + b) / 3 > GOL.THRESH) 
+                    gol.setAlive(row, col, true, true);
+            }
+        }
         return gol;
     }
 }
