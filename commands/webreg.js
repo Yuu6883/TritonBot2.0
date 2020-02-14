@@ -2,6 +2,7 @@ const { Attachment } = require("discord.js");
 
 /** @type {Object<string,UCSDCourse[]>} */
 const courses = {
+    "sp20": require('../data/SP20.json'),
     "wi20": require('../data/WI20.json'),
 }
 
@@ -35,7 +36,7 @@ module.exports = {
         let args = message.content.replace("webreg", "").trim().split(" ");
 
         if (!args[0]) {
-            message.channel.send("Type **Webreg [wi20] {Course code}** to check out a course");
+            message.channel.send("Type **Webreg [wi20|sp20] {Course code}** to check out a course");
             return;
         }
 
@@ -49,7 +50,7 @@ module.exports = {
 
         let code = args[1];
         if (!code) {
-            message.channel.send("Type **Webreg [wi20] {Course code}** to check out a course");
+            message.channel.send("Type **Webreg [wi20|sp20] {Course code}** to check out a course");
             return;
         }
         
