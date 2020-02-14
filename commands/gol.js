@@ -58,6 +58,7 @@ module.exports = {
             setTimeout(() => {
                 module.exports.run(message);
             }, 5000);
+            return;
         }
 
         try {
